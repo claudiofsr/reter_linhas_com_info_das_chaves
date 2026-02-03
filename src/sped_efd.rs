@@ -683,11 +683,7 @@ pub fn merge_files(config: &Config) -> SpedResult<()> {
 
 pub fn exibir_orientacoes_auditoria(config: &Config) {
     println!(
-        "\nPesquisar informações do arquivo: {:?}\n",
-        config.efd_path
-    );
-    println!(
-        " 1.1 Foram analisadas as chaves NFe/CTe de 44 dígitos contidas na EFD Contribuições."
+        "\n 1.1 Foram analisadas as chaves NFe/CTe de 44 dígitos contidas na EFD Contribuições."
     );
 
     // As colunas vêm do nosso LazyLock de colunas estáticas
