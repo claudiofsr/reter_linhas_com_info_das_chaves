@@ -9,9 +9,10 @@ garantindo a integridade da chave.
 /// Erro no Dígito Verificador
 #[derive(Debug, PartialEq, Eq)]
 pub enum DVError {
-    TamanhoInvalido,
+    FormatoInvalido,
     CaractereInvalido,
     DigitoVerificadorIncorreto,
+    TamanhoInvalido,
 }
 
 /// Calcula o Dígito Verificador (DV) para o corpo de uma chave (43 dígitos).
@@ -45,12 +46,14 @@ pub fn calcular_dv(corpo: &str) -> Result<u32, DVError> {
 
 /// Valida a integridade de uma Chave de Acesso de NFe ou CTe (44 dígitos).
 pub fn validar_chave_acesso(chave: &str) -> Result<(), DVError> {
-    if chave.len() != 44 {
-        return Err(DVError::TamanhoInvalido);
+    // 1. Garante exatamente 44 bytes e que todos os caracteres são dígitos numéricos ASCII ('0'..='9')
+    if chave.len() != 44 || !chave.bytes().all(|b| b.is_ascii_digit()) {
+        return Err(DVError::FormatoInvalido);
     }
 
-    // Fatiamento seguro e eficiente (O(1))
-    let (corpo, dv_informado_str) = chave.split_at(43);
+    // 2. Fatiamento 100% seguro (O(1)) garantido sem panics.
+    // Se a chave for menor que 43 caracteres, retorna um erro controlado
+    let (corpo, dv_informado_str) = chave.split_at_checked(43).ok_or(DVError::TamanhoInvalido)?;
 
     // Converte o último dígito da string para u32 para comparação
     let dv_informado = dv_informado_str
@@ -121,7 +124,7 @@ mod tests_digito_verificador {
 
     #[test]
     fn test_chave_tamanho_errado() {
-        assert_eq!(validar_chave_acesso("123"), Err(DVError::TamanhoInvalido));
+        assert_eq!(validar_chave_acesso("123"), Err(DVError::FormatoInvalido));
     }
 
     #[test]
@@ -130,7 +133,7 @@ mod tests_digito_verificador {
         let chave_invalida = "3517011234567800019055001000000001100000001A";
         assert_eq!(
             validar_chave_acesso(chave_invalida),
-            Err(DVError::CaractereInvalido)
+            Err(DVError::FormatoInvalido)
         );
     }
 

@@ -1,5 +1,5 @@
 use clap::Parser;
-use rand::Rng;
+use rand::RngExt;
 use std::{
     collections::{HashMap, HashSet},
     fs,
